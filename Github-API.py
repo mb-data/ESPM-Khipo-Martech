@@ -7,24 +7,42 @@ import pandas as pd
 import requests
 import base64
 
-token = "" # SEU TOKEN AQUI
+token = ""
 
 try:
 
     headers = { "Accept": "application/vnd.github+json", 
-               "X-GitHub-Api-Version": "2022-11-28",
+                "X-GitHub-Api-Version": "2022-11-28",
                 "Authorization": "Bearer " + token }
+    
+    # GET - All repositories
 
-    response = requests.get("https://api.github.com/repos/mb-data/BaurFrontComercial/commits", headers=headers)
+    repos = requests.get("https://api.github.com/orgs/mb-data/repos", headers=headers)
 
-    print(response.json())
+    df_repos = pd.json_normalize(repos.json(), max_level=0)
 
-    df = pd.json_normalize(response.json(), max_level=0)
+    df_repos.to_json("C:\\...\\source\\repos\\ESPM-Khipo\\ESPM-Khipo-Martech\\Github-API-Repos.json")
 
-    print(df.head())
+    # GET - All repository commits
+    
+    commits = requests.get("https://api.github.com/repos/mb-data/ESPM-Khipo-Martech/commits", headers=headers)
+
+    df_commits = pd.json_normalize(commits.json(), max_level=0)
+
+    df_commits['parents'] = df_commits['parents'].to_numpy().flatten()
+
+    df_commits.to_json("C:\\...\\source\\repos\\ESPM-Khipo\\ESPM-Khipo-Martech\\Github-API-Commits.json")
+
+    # GET - All repository Pull-Requests
+
+    pullrequests = requests.get("https://api.github.com/repos/mb-data/ESPM-Khipo-Martech/commits", headers=headers)
+
+    df_pullrequests = pd.json_normalize(pullrequests.json(), max_level=0)
+
+    df_pullrequests.to_json("C:\\...\\source\\repos\\ESPM-Khipo\\ESPM-Khipo-Martech\\Github-API-PRs.json")
     
     # accountName = "khipoespm"
-    # accountKey = "OSjJx/Gz+L0jFu0mG3pBJouT543Yg9+IhrByAZc0N0uLNZfURLTfFphxfSrV/gcb7Gaqb89Op+0T+AStRnFVOg=="
+    # accountKey = ""
     # containerName = "khipo-espm"
 
     # blobService = BlockBlobService(account_name=accountName, account_key=accountKey)
